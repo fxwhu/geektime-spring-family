@@ -1,5 +1,7 @@
 package geektime.spring.data.datasourcedemo;
 
+import geektime.spring.data.datasourcedemo.event.SadEvent;
+import geektime.spring.data.datasourcedemo.event.SadEventPublisher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -19,43 +21,51 @@ import java.util.List;
 @RestController
 @Slf4j
 public class DataSourceDemoApplication implements CommandLineRunner {
-	@Autowired
-	private DataSource dataSource;
+    @Autowired
+    private DataSource dataSource;
 
-	@Autowired
-	private JdbcTemplate jdbcTemplate;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+    @Autowired
+	private SadEventPublisher sadEventPublisher;
 
-	public static void main(String[] args) {
-		SpringApplication.run(DataSourceDemoApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(DataSourceDemoApplication.class, args);
+    }
 
-	@Override
-	public void run(String... args) throws Exception {
-		showConnection();
-		showData();
-	}
+    @Override
+    public void run(String... args) throws Exception {
+        //showConnection();
+        //showData();
+		testEvent();
+    }
 
-	private void showConnection() throws SQLException {
-		log.info(dataSource.toString());
-		Connection conn = dataSource.getConnection();
-		log.info(conn.toString());
-		conn.close();
-	}
+    private void showConnection() throws SQLException {
+        log.info(dataSource.toString());
+        Connection conn = dataSource.getConnection();
+        log.info(conn.toString());
+        conn.close();
+    }
 
-	@RequestMapping("/getFoodName")
-	@ResponseBody
-	public ResponseEntity<List<String>> getName() {
-		return ResponseEntity.ok(getFoodName());
-	}
+    @RequestMapping("/getFoodName")
+    @ResponseBody
+    public ResponseEntity<List<String>> getName() {
+        return ResponseEntity.ok(getFoodName());
+    }
 
 
-	private List<String> getFoodName() {
-		return jdbcTemplate.queryForList("select name from food", String.class);
-	}
+    private List<String> getFoodName() {
+        return jdbcTemplate.queryForList("select name from food", String.class);
+    }
 
-	private void showData() {
-		jdbcTemplate.queryForList("SELECT * FROM FOO")
-				.forEach(row -> log.info(row.toString()));
-	}
+    private void showData() {
+        jdbcTemplate.queryForList("SELECT * FROM FOO")
+                .forEach(row -> log.info(row.toString()));
+    }
+
+    public void testEvent() {
+        sadEventPublisher.sendSadMessage();
+        sadEventPublisher.sendContextStartEvent();
+    }
 }
 
