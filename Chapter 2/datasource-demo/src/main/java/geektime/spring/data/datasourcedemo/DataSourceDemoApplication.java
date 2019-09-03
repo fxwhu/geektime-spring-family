@@ -1,7 +1,8 @@
 package geektime.spring.data.datasourcedemo;
 
-import geektime.spring.data.datasourcedemo.event.SadEvent;
+import geektime.spring.data.datasourcedemo.autoconfig.MyBean;
 import geektime.spring.data.datasourcedemo.event.SadEventPublisher;
+import geektime.spring.data.datasourcedemo.listener.MyApplicationListener;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -29,15 +30,21 @@ public class DataSourceDemoApplication implements CommandLineRunner {
     @Autowired
 	private SadEventPublisher sadEventPublisher;
 
+    @Autowired
+    private MyBean myBean;
+
     public static void main(String[] args) {
-        SpringApplication.run(DataSourceDemoApplication.class, args);
+        SpringApplication springApplication = new SpringApplication(DataSourceDemoApplication.class);
+        springApplication.addListeners(new MyApplicationListener());
+        springApplication.run(args);
     }
 
     @Override
     public void run(String... args) throws Exception {
         //showConnection();
         //showData();
-		testEvent();
+		//testEvent();
+        testApplicationArgs();
     }
 
     private void showConnection() throws SQLException {
@@ -66,6 +73,11 @@ public class DataSourceDemoApplication implements CommandLineRunner {
     public void testEvent() {
         sadEventPublisher.sendSadMessage();
         sadEventPublisher.sendContextStartEvent();
+    }
+
+    //打印 applicationArgs
+    public void testApplicationArgs() {
+        myBean.logApplicationArgs();;
     }
 }
 
